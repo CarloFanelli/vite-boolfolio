@@ -1,20 +1,69 @@
 <script>
 import axios from 'axios';
-import HelloWorld from './components/HelloWorld.vue'
+
 
 export default {
   data() {
     return {
       baseURL: 'http://127.0.0.1:8000/',
       projectsURI: 'api/projects',
-      projects: []
+      projects: [],
+      pages: null,
+      currentPage: 1,
+      pageURI: '/?page='
     }
   },
+  methods: {
+
+    navigation() {
+      axios.get(this.baseURL + this.projectsURI + this.pageURI + this.currentPage)
+        .then(response => {
+          this.currentPage = response.data.projects.current_page
+          this.projects = response.data.projects.data
+        })
+        .catch(err => {
+          console.log(err);
+        })
+    },
+
+    prev() {
+
+      if (this.currentPage === 1) {
+
+        this.currentPage = this.pages;
+        console.log(this.currentPage);
+
+      }
+      else {
+        this.currentPage--;
+        console.log(this.currentPage);
+
+      }
+      this.navigation();
+
+    },
+
+    next() {
+
+      if (this.currentPage === 4) {
+
+        this.currentPage = 1;
+
+      }
+      else {
+        this.currentPage++;
+
+      }
+      this.navigation();
+
+    }
+
+  },
   mounted() {
-    axios.get(this.baseURL + this.projectsURI)
+    axios.get(this.baseURL + this.projectsURI + this.pageURI + this.currentPage)
       .then(response => {
-        //console.log(response);
-        console.log(response.data.projects.data);
+        this.pages = response.data.projects.last_page
+        //console.log(response.data.projects.data);
         this.projects = response.data.projects.data
       })
       .catch(err => {
@@ -58,8 +107,10 @@ export default {
   </header>
 
   <main>
-    <div class="container mt-4">
+    <div class="container my-4">
       <div class="row">
+        <h1>numero pagine: {{ this.pages }}</h1>
+        <h1> pagina corrente: {{ this.currentPage }}</h1>
         <div class="col-4 g-4" v-for="project in  this.projects ">
           <div class="card h-100">
             <div class="card-header">
@@ -71,20 +122,32 @@ export default {
             <div class="card-body">
               <img class="img-fluid" :src="this.baseURL + 'storage/placeholders/' + project.cover_image" alt="">
               <p>{{ project.content }}</p>
-              <div class="technologies">
-                <div class="badge rounded-pill text-bg-primary" v-for=" technology  in  project.technologies ">
+              <div class="technologies d-flex justify-content-center">
+                <div class="mx-1 badge rounded-pill text-bg-primary" v-for=" technology  in  project.technologies ">
                   <p class="m-0">{{ technology.name }}</p>
                 </div>
               </div>
             </div>
             <div class="card-footer d-flex justify-content-between">
-              <a class="text-decoration-none" href="{{ project.project_link }}">Link</a>
-              <a class="text-decoration-none" href="{{ project.git_link }}">GitHub</a>
+              <a target=”_blank” class="text-decoration-none" :href="project.project_link">Link</a>
+              <a target=”_blank” class="text-decoration-none" :href="project.git_link">GitHub</a>
 
             </div>
           </div>
         </div>
       </div>
+
+      <div class="pagination d-flex justify-content-between">
+        <div class="dot">
+          <button class="btn-primary" @click="prev()">prev</button>
+        </div>
+        <div class="dot">
+          <button class="btn-primary" @click="next()">next</button>
+        </div>
+      </div>
+
+
+
     </div>
   </main>
 </template>
