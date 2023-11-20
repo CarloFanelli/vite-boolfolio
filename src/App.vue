@@ -65,9 +65,11 @@ export default {
 
 <template>
   <AppHeader></AppHeader>
-  <router-view>
+  <main>
+    <router-view>
 
-  </router-view>
+    </router-view>
+  </main>
 </template>
 
 <style scoped></style>
