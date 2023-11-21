@@ -23,7 +23,9 @@ export default {
                     console.log(this.project);
                 }
                 else {
-                    this.$router.push({ slug: 'not-found' });
+                    this.$router.push({
+                        name: 'NotFound'
+                    });
                 }
             })
             .catch(err => {
